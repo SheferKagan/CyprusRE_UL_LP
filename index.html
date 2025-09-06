@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Urban Legend — נדל״ן בקפריסין</title>
+  <meta name="description" content="Urban Legend — השקעות נדל״ן יוקרתיות בקפריסין. ליווי פיננסי, משפטי ותפעולי מקצה לקצה." />
+  <meta property="og:title" content="Urban Legend — נדל״ן בקפריסין" />
+  <meta property="og:description" content="השקעות נדל״ן איכותיות בקפריסין עם Urban Legend. ליווי מלא ושקיפות מוחלטת." />
+  <meta property="og:image" content="https://images.unsplash.com/photo-1616853874945-f09c13b2e65d?q=80&auto=format&fit=crop&w=1200" />
+  <meta property="og:url" content="https://www.urbanlegend.homes" />
+  <link rel="canonical" href="https://www.urbanlegend.homes" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Preconnects for tiles/CDNs -->
+  <link rel="preconnect" href="https://a.basemaps.cartocdn.com">
+  <link rel="preconnect" href="https://b.basemaps.cartocdn.com">
+  <link rel="preconnect" href="https://c.basemaps.cartocdn.com">
+  <link rel="preconnect" href="https://unpkg.com">
+
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+
+  <!-- Calendly widget CSS (optional) -->
+  <link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --navy:#0E2A47;
+      --gold:#C2A87C;
+      --gold-700:#B29B6E;
+      --white:#FFFFFF;
+      --gray-50:#F8F8F8;
+      --gray-100:#F2F2F2;
+      --gray-300:#DADDE2;
+      --text:#0E2A47;
+      --radius:14px;
+      --shadow-sm:0 6px 18px rgba(0,0,0,.08);
+      --shadow-md:0 12px 32px rgba(0,0,0,.14);
+      --dur:.35s;
+      --ease:cubic-bezier(.22,.61,.36,1);
+    }
+
+    *,*::before,*::after{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      font-family:'Heebo',system-ui,Segoe UI,Roboto,Arial,sans-serif;
+      background:var(--navy);
+      color:var(--white);
+      direction:rtl; text-align:right; line-height:1.6;
+    }
+    img{max-width:100%;height:auto;display:block}
+    a{color:inherit;text-decoration:none}
+    .container{max-width:1200px;margin-inline:auto;padding-inline:1.5rem}
+
+    /* Header */
+    .site-header{
+      position:sticky; top:0; z-index:1000;
+      background:rgba(14,42,71,.6); backdrop-filter:blur(8px) saturate(150%);
+      border-bottom:1px solid rgba(255,255,255,.12);
+      transition:transform var(--dur) var(--ease), background var(--dur) var(--ease);
+    }
+    .nav{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem 0}
+    .brand{display:flex;align-items:center;gap:.6rem;font-weight:800;letter-spacing:.4px}
+    .brand .dot{inline-size:10px;block-size:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px rgba(194,168,124,.24)}
+    .nav__links{display:flex;gap:.8rem;flex-wrap:wrap}
+    .nav__link{padding:.6rem .9rem;border-radius:999px;transition:background var(--dur),transform .18s}
+    .nav__link:hover{background:rgba(255,255,255,.08);transform:translateY(-1px)}
+    .nav__cta{background:var(--gold);color:var(--navy);border-radius:999px;padding:.7rem 1.1rem;font-weight:800}
+    .nav__cta:hover{background:var(--gold-700)}
+
+    /* Hero */
+    .hero{
+      min-height:100svh; display:grid; place-items:center; position:relative; text-align:center;
+      background:
+        linear-gradient(rgba(14,42,71,.68),rgba(14,42,71,.9)),
+        url('https://images.unsplash.com/photo-1616853874945-f09c13b2e65d?q=80&auto=format&fit=crop&w=1920') center/cover no-repeat;
+      overflow:hidden;
+    }
+    .hero__content{padding:3rem 1.5rem}
+    .title-stack{display:grid;gap:.35rem;margin-bottom:1rem}
+    .brand-en{font-size:clamp(2.2rem,7vw,4rem); font-weight:900; letter-spacing:.5px; opacity:0; transform:translateX(-60px)}
+    .brand-he{font-size:clamp(1.2rem,3.5vw,1.8rem); font-weight:700; opacity:0; transform:translateX(60px)}
+    .hero__desc{max-width:850px;margin:0 auto 2rem;opacity:.95}
+    .hero__cta{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap}
+
+    @keyframes slideInLeft{to{opacity:1;transform:translateX(0)}}
+    @keyframes slideInRight{to{opacity:1;transform:translateX(0)}}
+
+    /* Sections */
+    .section{padding-block:5rem}
+    .section--white{background:var(--white);color:var(--text)}
+    .section--gray{background:var(--gray-100);color:var(--text)}
+    .section--navy{background:var(--navy);color:var(--white)}
+    .section__heading{text-align:center;margin-bottom:2rem;font-size:clamp(1.8rem,4vw,2.4rem)}
+    .section__sub{max-width:900px;margin:0 auto 2.2rem;text-align:center;opacity:.85}
+
+    /* Advantages grid */
+    .adv-grid{display:grid;gap:1.2rem;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+    .adv-card{background:var(--navy);color:#fff;padding:1.6rem;border-radius:var(--radius);box-shadow:var(--shadow-sm);transition:transform .25s, box-shadow .25s}
+    .adv-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-md)}
+    .adv-card h3{color:var(--gold);margin:0 0 .4rem}
+
+    /* Distances list */
+    .dist-list{background:#0f2e4f;color:#fff;border-radius:var(--radius);padding:1rem 1.2rem;box-shadow:var(--shadow-sm)}
+    .dist-list ul{margin:0;padding:0;list-style:none;display:grid;gap:.35rem}
+    .dist-list li strong{color:var(--gold)}
+
+    /* Gallery */
+    .gallery-wrap{position:relative}
+    .gallery{
+      display:grid; grid-auto-flow:column; grid-auto-columns:80%;
+      gap:1rem; overflow-x:auto; scroll-snap-type:x mandatory; padding-bottom:.5rem;
+    }
+    @media (min-width: 900px){ .gallery{grid-auto-columns:33%} }
+    .shot{background:#fff;color:var(--text);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm);scroll-snap-align:center}
+    .shot__media{position:relative;overflow:hidden}
+    .shot__media picture, .shot__media img{inline-size:100%;block-size:260px;object-fit:cover}
+    .shot__media img{transform:scale(1.04);transition:transform .6s var(--ease)}
+    .shot:hover .shot__media img{transform:scale(1.08)}
+    .shot__body{padding:1rem 1.2rem}
+    .shot__ttl{color:var(--gold);font-weight:800;margin:0 0 .3rem}
+    .shot__meta{font-size:.95rem;opacity:.85}
+    .gal-btn{
+      position:absolute; inset-block-start:40%; translate:0 -50%;
+      inline-size:42px; block-size:42px; border-radius:50%; border:0; cursor:pointer;
+      background:var(--gold); color:var(--navy); display:grid; place-items:center;
+      box-shadow:var(--shadow-sm); transition:transform .18s, background var(--dur);
+    }
+    .gal-btn:hover{background:var(--gold-700)}
+    .gal-prev{inset-inline-start:4px}
+    .gal-next{inset-inline-end:4px}
+
+    /* Trust */
+    .trust{display:grid;gap:1.6rem}
+    @media (min-width: 900px){.trust{grid-template-columns:1.5fr 1fr;align-items:center}}
+    .t-card{background:var(--gray-50);color:var(--text);border-radius:var(--radius);padding:1.4rem;box-shadow:var(--shadow-sm)}
+    .t-card p{font-style:italic}
+    .t-card small{display:block;margin-top:.5rem;font-weight:700}
+    .video{aspect-ratio:16/9;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm);background:#000}
+
+    /* Investment types / features */
+    .cols{display:grid;gap:1.2rem}
+    @media (min-width: 900px){.cols{grid-template-columns:1fr 1fr}}
+    .list{background:#fff;color:var(--text);border-radius:var(--radius);padding:1.2rem 1.4rem;box-shadow:var(--shadow-sm)}
+    .list h3{color:var(--gold);margin:0 0 .6rem}
+    .list ul{margin:0;padding-inline-start:1.2rem}
+    .list li{margin:.3rem 0}
+
+    /* Form */
+    .lead{display:grid;gap:2rem}
+    @media (min-width: 860px){.lead{grid-template-columns:1.2fr 1fr;align-items:center}}
+    .form{display:grid;gap:1rem}
+    .field{display:grid;gap:.35rem}
+    .label{font-weight:700}
+    .req{color:#c23c3c}
+    .input{
+      inline-size:100%; padding:1rem; border:2px solid var(--gray-300); border-radius:12px; background:#fff; color:var(--text);
+      transition:border-color .2s, box-shadow .2s;
+    }
+    .input::placeholder{color:#9aa5b1}
+    .input:focus{border-color:var(--gold); box-shadow:0 0 0 3px rgba(194,168,124,.28)}
+    .input.ltr{direction:ltr; text-align:left}
+    .msg{font-size:.9rem; min-height:1.1em}
+    .msg.error{color:#d23b3b}
+    .msg.ok{color:#1b7f4c}
+    .input.error{border-color:#d23b3b; box-shadow:0 0 0 3px rgba(210,59,59,.15)}
+    .input.ok{border-color:#1b7f4c; box-shadow:0 0 0 3px rgba(27,127,76,.15)}
+    .btn{display:inline-block;padding:1rem 1.3rem;border-radius:999px;border:0;font-weight:800;cursor:pointer;box-shadow:var(--shadow-sm);transition:transform .18s, box-shadow var(--dur), background var(--dur)}
+    .btn:active{transform:translateY(1px)}
+    .btn-primary{background:var(--gold);color:var(--navy)}
+    .btn-primary:hover{background:var(--gold-700);box-shadow:var(--shadow-md)}
+    .btn-outline{background:transparent;color:var(--gold);border:2px solid var(--gold)}
+    .btn-outline:hover{background:var(--gold);color:var(--navy)}
+
+    /* Map Card */
+    .map-card { max-width: 1100px; margin: 0 auto; background: var(--navy); color: var(--white);
+      border-radius: var(--radius); box-shadow: var(--shadow-sm); padding: 1rem; border: 1px solid rgba(255,255,255,.12); }
+    .map-toolbar { display: flex; gap: .5rem; flex-wrap: wrap; justify-content: center; margin-bottom: .8rem; }
+    .map-chip { background: transparent; color: var(--gold); border: 1px solid var(--gold);
+      padding: .4rem .8rem; border-radius: 999px; cursor: pointer; transition: background .2s, color .2s; }
+    .map-chip:hover, .map-chip.active { background: var(--gold); color: var(--navy); }
+    #cyprusMap { height: 520px; border-radius: calc(var(--radius) - 4px); overflow: hidden; }
+    .leaflet-container { background: #0b1f35; }
+    .leaflet-control-zoom a { background: var(--gold); color: var(--navy); border: none; }
+    .leaflet-control-zoom a:hover { background: var(--gold-700); }
+    .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: #0f2e4f; color: #fff; border: 1px solid rgba(255,255,255,.12); }
+
+    /* Floating CTA */
+    .floating-cta{
+      position:fixed; inset-inline-end:18px; inset-block-end:18px; z-index:1200;
+      display:flex; gap:.6rem; align-items:center; background:var(--gold); color:var(--navy);
+      border-radius:999px; padding:.6rem .9rem; box-shadow:var(--shadow-md);
+      transition:opacity var(--dur), transform var(--dur);
+    }
+    .floating-cta.hide{opacity:0; transform:translateY(15px); pointer-events:none}
+    .floating-cta .pulse{inline-size:10px; block-size:10px; border-radius:50%; background:var(--navy); opacity:.6; box-shadow:0 0 0 8px rgba(14,42,71,.15)}
+
+    /* Modal (Thank you) */
+    .modal{position:fixed;inset:0;z-index:1400;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:1rem}
+    .modal.open{display:flex}
+    .modal-card{background:#fff;color:var(--text);border-radius:16px;max-width:960px;width:100%;box-shadow:var(--shadow-md);overflow:hidden}
+    .modal-head{background:var(--navy);color:#fff;padding:1rem 1.2rem;display:flex;align-items:center;justify-content:space-between}
+    .modal-body{padding:1rem}
+    .closer{cursor:pointer;background:transparent;border:0;color:#fff;font-size:1.6rem;line-height:1}
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} .brand-en,.brand-he{transition:none;animation:none} }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <div class="brand"><span class="dot" aria-hidden="true"></span><span>Urban Legend</span></div>
+      <nav class="nav__links" aria-label="ניווט">
+        <a class="nav__link" href="#advantages">יתרונות</a>
+        <a class="nav__link" href="#gallery">גלריה</a>
+        <a class="nav__link" href="#invest">אפשרויות השקעה</a>
+        <a class="nav__link" href="#trust">אמון</a>
+        <a class="nav__link" href="#form">טופס</a>
+        <a class="nav__cta" href="#form">השאירו פרטים</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero" id="hero">
+    <div class="hero__content container">
+      <div class="title-stack">
+        <div class="brand-en" id="brandEn">דירות להשקעה בירוסקיפו</div>
+        <div class="brand-he" id="brandHe">נדל״ן בקפריסין</div>
+      </div>
+      <p class="hero__desc" id="heroDesc">השקעות פרימיום בקפריסין עם ליווי פיננסי, משפטי ותפעולי — משלב האיתור ועד ההשכרה.</p>
+      <div class="hero__cta">
+        <a href="#form" class="btn btn-primary" id="heroCta">קבעו פגישה עכשיו</a>
+        <a href="#gallery" class="btn btn-outline">עיינו בגלריה</a>
+      </div>
+    </div>
+  </section>
+
+  <main>
+
+    <!-- Advantages specific (from user brief) -->
+    <section id="advantages" class="section section--white" aria-labelledby="adv-heading">
+      <div class="container">
+        <h2 class="section__heading" id="adv-heading">נקודות לכדאיות הפרויקט</h2>
+        <div class="adv-grid">
+          <article class="adv-card">
+            <h3>מיקום אסטרטגי — ירוסקיפו</h3>
+            <p>אזור חדש ומתפתח, קרוב למרכזי שירות אך מרוחק מספיק מאזורי התיירות העמוסים — איזון מושלם בין שקט לגישה נוחה.</p>
+          </article>
+
+          <article class="adv-card">
+            <h3>ביקוש גובר</h3>
+            <p>קהילת הייטק ייעודית מרוסיה, אוקראינה וישראל שעוברת להתגורר באי. פתיחת בית הספר הבינלאומי Lumio (5 דק׳ נסיעה) תורמת לביקוש איכותי ויציב.</p>
+          </article>
+
+          <article class="adv-card">
+            <h3>תשואה שוטפת גבוהה</h3>
+            <p>ביקוש גבוה לשכירויות ארוכות טווח באזור — מתאים למשקיעים שמחפשים הכנסה יציבה עם פוטנציאל השבחה.</p>
+          </article>
+
+          <article class="adv-card">
+            <h3>ייחודיות הפרויקט</h3>
+            <p>בריכת גג מחוממת לכל עונות השנה + פאנלים סולאריים המספקים את כל צריכת החשמל לשטחים משותפים (כולל הבריכה).</p>
+          </article>
+        </div>
+
+        <div class="dist-list" style="margin-top:1rem">
+          <h3 style="margin-top:0;color:var(--gold)">נגישות גבוהה</h3>
+          <ul>
+            <li><strong>2 דק׳</strong> ל־Neapolis Eco City (המרכז התרבותי והעסקי החדש של פאפוס)</li>
+            <li><strong>3 דק׳</strong> לחופי יול היפים והלא עמוסים של ירוסקיפו</li>
+            <li><strong>10 דק׳</strong> למרכז פאפוס</li>
+            <li><strong>1 דק׳</strong> ליציאה לכביש המהיר</li>
+            <li><strong>10 דק׳</strong> לשדה התעופה</li>
+            <li><strong>35 דק׳</strong> ללימסול</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Property Gallery (mockups) -->
+    <section id="gallery" class="section section--gray" aria-labelledby="gallery-heading">
+      <div class="container gallery-wrap">
+        <h2 class="section__heading" id="gallery-heading">גלריית נכסים — הדמיות ומוקאפים</h2>
+        <p class="section__sub">תצוגה להמחשה בלבד. נחליף לתמונות וידאו/מצגות סופיות בהמשך.</p>
+
+        <button class="gal-btn gal-prev" aria-label="גללו שמאלה">‹</button>
+        <button class="gal-btn gal-next" aria-label="גללו ימינה">›</button>
+
+        <div class="gallery" id="galleryScroller">
+          <!-- Card 1 -->
+          <figure class="shot">
+            <div class="shot__media">
+              <picture>
+                <source srcset="https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1600&fm=webp&q=80" type="image/webp">
+                <img loading="lazy" src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1600&q=80" alt="הדמיית סלון מודרני בפרויקט חדש בירוסקיפו">
+              </picture>
+            </div>
+            <figcaption class="shot__body">
+              <div class="shot__ttl">דירת 2 חד׳ • ירוסקיפו</div>
+              <div class="shot__meta">75 מ״ר • €220,000 • תשואה 6–8%</div>
+            </figcaption>
+          </figure>
+
+          <!-- Card 2 -->
+          <figure class="shot">
+            <div class="shot__media">
+              <picture>
+                <source srcset="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1600&fm=webp&q=80" type="image/webp">
+                <img loading="lazy" src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1600&q=80" alt="הדמיית חזית בניין מגורים יוקרתי בלימסול">
+              </picture>
+            </div>
+            <figcaption class="shot__body">
+              <div class="shot__ttl">וילה יוקרתית • לימסול</div>
+              <div class="shot__meta">180 מ״ר + בריכה • €650,000 • תשואה 5–7%</div>
+            </figcaption>
+          </figure>
+
+          <!-- Card 3 -->
+          <figure class="shot">
+            <div class="shot__media">
+              <picture>
+                <source srcset="https://images.unsplash.com/photo-1505691723518-36a5ac3b2d95?auto=format&fit=crop&w=1600&fm=webp&q=80" type="image/webp">
+                <img loading="lazy" src="https://images.unsplash.com/photo-1505691723518-36a5ac3b2d95?auto=format&fit=crop&w=1600&q=80" alt="הדמיית מטבח מודרני בפרויקט דירות להשקעה">
+              </picture>
+            </div>
+            <figcaption class="shot__body">
+              <div class="shot__ttl">קומפלקס 12 יח׳ • פאפוס</div>
+              <div class="shot__meta">60–120 מ״ר • מ-€180,000 • תשואה 7–9%</div>
+            </figcaption>
+          </figure>
+
+          <!-- Card 4 -->
+          <figure class="shot">
+            <div class="shot__media">
+              <picture>
+                <source srcset="https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=1600&fm=webp&q=80" type="image/webp">
+                <img loading="lazy" src="https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=1600&q=80" alt="מרפסת עם נוף לים — הדמיה רעיונית לנכס פרונט ליין">
+              </picture>
+            </div>
+            <figcaption class="shot__body">
+              <div class="shot__ttl">מרפסת לים • פרונט ליין</div>
+              <div class="shot__meta">פאפוס • נוף פתוח • ביקוש תיירותי גבוה</div>
+            </figcaption>
+          </figure>
+
+          <!-- Card 5 -->
+          <figure class="shot">
+            <div class="shot__media">
+              <picture>
+                <source srcset="https://images.unsplash.com/photo-1597047084897-51e81819a499?auto=format&fit=crop&w=1600&fm=webp&q=80" type="image/webp">
+                <img loading="lazy" src="https://images.unsplash.com/photo-1597047084897-51e81819a499?auto=format&fit=crop&w=1600&q=80" alt="פנטהאוז מודרני עם חלונות רצפה-תקרה — מוקאפים">
+              </picture>
+            </div>
+            <figcaption class="shot__body">
+              <div class="shot__ttl">פנטהאוז מודרני</div>
+              <div class="shot__meta">חלונות רצפה-תקרה • חוויית יוקרה</div>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- Investment types and Apartment features -->
+    <section id="invest" class="section section--white" aria-labelledby="invest-heading">
+      <div class="container">
+        <h2 class="section__heading" id="invest-heading">אפשרויות השקעה</h2>
+        <div class="cols">
+          <div class="list">
+            <h3>עסקת פליפ — טווח קצר (עד 15 חודשים)</h3>
+            <ul>
+              <li>רכישה בכ־10–20% מתחת למחירי המתחרים</li>
+              <li>רווח נוסף של כ־15% במעמד מסירת מפתח</li>
+              <li><strong>סה״כ פוטנציאל רווח:</strong> 15–35%</li>
+              <li>עם משכנתא מקומית: <strong>25–45% רווח</strong></li>
+            </ul>
+          </div>
+          <div class="list">
+            <h3>עסקת תשואה ועליית ערך — טווח בינוני/ארוך (5 שנים)</h3>
+            <ul>
+              <li><strong>רווח כולל:</strong> 45–65% (ללא מימון)</li>
+              <li><strong>רווח שנתי:</strong> 9–13%</li>
+              <li><strong>רווח כולל עם מימון:</strong> 80–100%</li>
+              <li><strong>רווח שנתי עם מימון:</strong> 16–20%</li>
+            </ul>
+          </div>
+        </div>
+
+        <h2 class="section__heading" style="margin-top:2.2rem">מה כולל הסטנדרט בדירות</h2>
+        <div class="cols">
+          <div class="list">
+            <h3>כל הדירות</h3>
+            <ul>
+              <li>הכנה למיזוג אוויר</li>
+              <li>מטבח מלא: כיור, ברזים, ארונות ומשטחי עבודה</li>
+              <li>חדרי רחצה מאובזרים: כיור, ארון, מראה, מקלחון/אמבטיה, אסלה מודרנית עומדת</li>
+              <li>ארונות מובנים בחדרי שינה</li>
+              <li>ארון שירות ייעודי למכונת כביסה ומייבש</li>
+            </ul>
+          </div>
+          <div class="list">
+            <h3>בסטודיו — בנוסף</h3>
+            <ul>
+              <li>מזגן עילי מפוצל לשני אזורים (חדר שינה/סלון)</li>
+              <li>שולחן אוכל משולב במטבח</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Form -->
+    <section id="form" class="section section--white" aria-labelledby="form-heading">
+      <div class="container lead">
+        <div>
+          <h2 class="section__heading" id="form-heading">השאירו פרטים — נחזור אליכם לשיחת היכרות</h2>
+          <p class="section__sub">ללא עלות וללא התחייבות. נתאים יחד את ההשקעה הנכונה עבורכם.</p>
+        </div>
+
+        <!-- Formspree wiring (replace with your endpoint id) -->
+        <form class="form" id="leadForm" action="https://formspree.io/f/YOUR_FORM_ID" method="POST" novalidate>
+          <!-- UTM Hidden fields -->
+          <input type="hidden" name="utm_source" id="utm_source">
+          <input type="hidden" name="utm_medium" id="utm_medium">
+          <input type="hidden" name="utm_campaign" id="utm_campaign">
+          <input type="hidden" name="utm_content" id="utm_content">
+
+          <!-- Full Name -->
+          <div class="field">
+            <label class="label" for="name">שם מלא <span class="req">*</span></label>
+            <input id="name" name="name" type="text" class="input" placeholder="שם פרטי ומשפחה" required minlength="2" autocomplete="name">
+            <div class="msg" id="nameMsg" aria-live="polite"></div>
+          </div>
+
+          <!-- Phone -->
+          <div class="field">
+            <label class="label" for="phone">מספר טלפון <span class="req">*</span></label>
+            <input id="phone" name="phone" type="tel" class="input ltr" placeholder="+972-5X-XXX-XXXX או 05XXXXXXXX" required
+                   pattern="^(\+?972-?5\d-?\d{3}-?\d{4}|05\d-?\d{7})$" inputmode="tel" autocomplete="tel">
+            <div class="msg" id="phoneMsg" aria-live="polite"></div>
+          </div>
+
+          <!-- Email -->
+          <div class="field">
+            <label class="label" for="email">אימייל <span class="req">*</span></label>
+            <input id="email" name="email" type="email" class="input ltr" placeholder="you@company.com" required autocomplete="email">
+            <div class="msg" id="emailMsg" aria-live="polite"></div>
+          </div>
+
+          <button class="btn btn-primary" type="submit" id="formSubmit">קבעו פגישה עכשיו</button>
+          <div class="msg" id="formMsg" aria-live="polite"></div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Map -->
+    <section class="section section--navy" aria-labelledby="map-heading">
+      <div class="container">
+        <h2 class="section__heading" id="map-heading">אנחנו פועלים בליבת הביקוש</h2>
+        <p class="section__sub">זום מהיר לנקודות החזקות שלנו בקפריסין. לחצו כדי להתרכז באזור.</p>
+
+        <div class="map-card">
+          <div class="map-toolbar" role="group" aria-label="בחירת אזור">
+            <button class="map-chip active" data-target="paphos">פאפוס</button>
+            <button class="map-chip" data-target="limassol">לימסול</button>
+            <button class="map-chip" data-target="fit">הצג את כל הסמנים</button>
+          </div>
+          <div id="cyprusMap" role="application" aria-label="מפת אזורי פעילות בקפריסין"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Floating CTA -->
+  <a href="#form" class="floating-cta" id="floatingCta" aria-label="השאירו פרטים">
+    <span class="pulse" aria-hidden="true"></span>
+    <strong>השאירו פרטים</strong>
+  </a>
+
+  <!-- Thank you Modal with Calendly + WhatsApp -->
+  <div class="modal" id="thanksModal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="thanksTitle">
+      <div class="modal-head">
+        <h3 id="thanksTitle" style="margin:0">תודה! נשמח לתאם שיחה</h3>
+        <button class="closer" id="modalClose" aria-label="סגור">×</button>
+      </div>
+      <div class="modal-body">
+        <p>בחרו מועד ביומן או כתבו לנו בווטסאפ — ונחזור אליכם בהקדם.</p>
+        <div class="calendly-inline-widget" data-url="https://calendly.com/YOUR_USERNAME/investor-intro?hide_event_type_details=1&hide_gdpr_banner=1" style="min-width:320px;height:620px;"></div>
+        <p style="text-align:center;margin-top:1rem">
+          <a class="btn btn-primary" href="https://wa.me/9725XXXXXXXX?text=שלום%20Urban%20Legend,%20מעוניין/ת%20בפגישת%20ייעוץ" target="_blank" rel="noopener">וואטסאפ מהיר</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <p>Urban Legend © 2025 • כל הזכויות שמורות</p>
+      <p style="opacity:.85">המידע אינו מהווה ייעוץ השקעות/מס/משפטי. מומלץ להיוועץ בגורם מקצועי לפני קבלת החלטות.</p>
+    </div>
+  </footer>
+
+  <!-- GA4 (replace G-XXXX) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+
+  <!-- Meta Pixel (replace YOUR_PIXEL_ID) -->
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', 'YOUR_PIXEL_ID'); 
+    fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=YOUR_PIXEL_ID&ev=PageView&noscript=1"/></noscript>
+
+  <!-- Hotjar (optional: replace YOUR_ID) -->
+  <!--
+  <script>
+    (function(h,o,t,j,a,r){
+      h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+      h._hjSettings={hjid:YOUR_ID,hjsv:6};
+      a=o.getElementsByTagName('head')[0];
+      r=o.createElement('script');r.async=1;
+      r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+      a.appendChild(r);
+    })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+  </script>
+  -->
+
+  <!-- Leaflet JS -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+
+  <!-- Calendly JS -->
+  <script async src="https://assets.calendly.com/assets/external/widget.js"></script>
+
+  <script>
+    // Title animation
+    const brandEn = document.getElementById('brandEn');
+    const brandHe = document.getElementById('brandHe');
+    window.addEventListener('load', () => {
+      brandEn.style.animation = 'slideInLeft .8s var(--ease) forwards';
+      brandHe.style.animation = 'slideInRight .8s var(--ease) .15s forwards';
+    });
+
+    // Simple hero A/B test (ROI vs. Safety)
+    (function(){
+      const KEY='ab_hero_v1';
+      let v = localStorage.getItem(KEY);
+      if(!v){ v = Math.random()<0.5 ? 'roi' : 'safety'; localStorage.setItem(KEY, v); }
+      const desc = document.getElementById('heroDesc');
+      const cta = document.getElementById('heroCta');
+      if(v==='roi'){
+        desc.textContent = 'מקסום תשואה חכמה בקפריסין — איתור, בדיקת נאותות וניהול שמגדילים את השורה התחתונה.';
+        cta.textContent = 'בדיקת זכאות ותשואה';
+      } else {
+        desc.textContent = 'ביטחון ושקיפות מעל הכול — תהליך רכישה וניהול מלא בליווי משפטי ופיננסי הדוק.';
+        cta.textContent = 'קבעו שיחת היכרות';
+      }
+      // track view
+      try{ gtag('event','experiment_view',{experiment_id:'hero_v1',variant:v}); }catch(e){}
+      try{ fbq('trackCustom','ExperimentView',{experiment_id:'hero_v1',variant:v}); }catch(e){}
+    })();
+
+    // Floating CTA hides when form is visible
+    const cta = document.getElementById('floatingCta');
+    const formSec = document.getElementById('form');
+    const formIO = new IntersectionObserver((entries)=>{
+      entries.forEach(e => cta.classList.toggle('hide', e.isIntersecting));
+    }, {threshold: .2});
+    formIO.observe(formSec);
+
+    // Gallery nav
+    const scroller = document.getElementById('galleryScroller');
+    const prev = document.querySelector('.gal-prev');
+    const next = document.querySelector('.gal-next');
+    const scrollByAmount = () => Math.min(600, scroller.clientWidth * 0.9);
+    prev.addEventListener('click', ()=> scroller.scrollBy({left:-scrollByAmount(), behavior:'smooth'}));
+    next.addEventListener('click', ()=> scroller.scrollBy({left:scrollByAmount(), behavior:'smooth'}));
+
+    // Inline validation (no alerts)
+    const form = document.getElementById('leadForm');
+    const nameI = document.getElementById('name');
+    const phoneI = document.getElementById('phone');
+    const emailI = document.getElementById('email');
+    const nameMsg = document.getElementById('nameMsg');
+    const phoneMsg = document.getElementById('phoneMsg');
+    const emailMsg = document.getElementById('emailMsg');
+    const formMsg = document.getElementById('formMsg');
+
+    const setState = (input, msgEl, ok, msg='') => {
+      input.classList.remove('ok','error');
+      msgEl.classList.remove('ok','error');
+      if (ok){ input.classList.add('ok'); msgEl.classList.add('ok'); msgEl.textContent = '✔ תקין'; }
+      else { input.classList.add('error'); msgEl.classList.add('error'); msgEl.textContent = msg; }
+      if (msg === '') msgEl.textContent = '';
+    };
+
+    const phoneRegex = /^(\\+?972-?5\\d-?\\d{3}-?\\d{4}|05\\d-?\\d{7})$/.source;
+    const rePhone = new RegExp(phoneRegex);
+
+    const validateName = () => {
+      const v = nameI.value.trim();
+      if (v.length < 2) { setState(nameI, nameMsg, false, 'שם קצר מדי.'); return false; }
+      setState(nameI, nameMsg, true); return true;
+    };
+    const validatePhone = () => {
+      const v = phoneI.value.trim();
+      if (!rePhone.test(v)) { setState(phoneI, phoneMsg, false, 'מספר טלפון בפורמט +972-5X-XXX-XXXX או 05XXXXXXXX'); return false; }
+      setState(phoneI, phoneMsg, true); return true;
+    };
+    const validateEmail = () => {
+      if (!emailI.validity.valid) { setState(emailI, emailMsg, false, 'האימייל אינו תקין.'); return false; }
+      setState(emailI, emailMsg, true); return true;
+    };
+    ['input','blur'].forEach(ev=>{
+      nameI.addEventListener(ev, validateName);
+      phoneI.addEventListener(ev, validatePhone);
+      emailI.addEventListener(ev, validateEmail);
+    });
+
+    // Capture UTM params
+    (function(){
+      const params = new URLSearchParams(location.search);
+      ['utm_source','utm_medium','utm_campaign','utm_content'].forEach(k=>{
+        const el = document.getElementById(k);
+        if (el) el.value = params.get(k) || '';
+      });
+    })();
+
+    // AJAX submit to Formspree
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const ok = [validateName(), validatePhone(), validateEmail()].every(Boolean);
+      if (!ok) return;
+
+      const fd = new FormData(form);
+      try{
+        const resp = await fetch(form.action, { method:'POST', body: fd, headers: { 'Accept': 'application/json' } });
+        if (resp.ok){
+          form.reset();
+          [nameMsg, phoneMsg, emailMsg].forEach(m => m.textContent = '');
+          formMsg.classList.add('ok'); formMsg.textContent = 'הטופס נשלח בהצלחה. אפשר לתאם שיחה ביומן.';
+          // Conversions
+          try{ gtag('event','generate_lead'); }catch(e){}
+          try{ fbq('track','Lead'); }catch(e){}
+          // Open modal
+          document.getElementById('thanksModal').classList.add('open');
+          document.getElementById('thanksModal').setAttribute('aria-hidden','false');
+        } else {
+          formMsg.classList.remove('ok'); formMsg.classList.add('error');
+          formMsg.textContent = 'אירעה שגיאה בשליחת הטופס. נסו שוב או פנו בוואטסאפ.';
+        }
+      }catch(err){
+        formMsg.classList.remove('ok'); formMsg.classList.add('error');
+        formMsg.textContent = 'תקלה זמנית. נסו שוב מאוחר יותר.';
+      }
+    });
+
+    // Modal close
+    document.getElementById('modalClose').addEventListener('click', ()=>{
+      document.getElementById('thanksModal').classList.remove('open');
+      document.getElementById('thanksModal').setAttribute('aria-hidden','true');
+    });
+
+    // Leaflet Map
+    window.addEventListener('load', function () {
+      const GOLD = '#C2A87C';
+      const map = L.map('cyprusMap', { zoomControl: true, scrollWheelZoom: true, attributionControl: false });
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
+
+      const GoldIcon = L.divIcon({
+        className: 'gold-pin',
+        html: '<div style="width:14px;height:14px;border-radius:50%;background:'+GOLD+';box-shadow:0 0 0 8px rgba(194,168,124,.18);border:2px solid #0E2A47;"></div>',
+        iconSize: [14, 14], iconAnchor: [7, 7], popupAnchor: [0, -8]
+      });
+
+      const pts = {
+        paphos: { name: 'פאפוס',  coords: [34.775, 32.422] },
+        limassol: { name: 'לימסול', coords: [34.707, 33.022] },
+        yeroskipou: { name: 'ירוסקיפו', coords: [34.760, 32.455] }
+      };
+
+      const markers = [];
+      Object.values(pts).forEach(p => {
+        const m = L.marker(p.coords, { icon: GoldIcon })
+          .bindPopup('<strong>'+p.name+'</strong><br/>אזור ביקוש להשכרה ותיירות')
+          .addTo(map);
+        markers.push(m);
+      });
+
+      const group = L.featureGroup(markers);
+      map.fitBounds(group.getBounds(), { padding: [50, 50] });
+
+      const chips = document.querySelectorAll('.map-chip');
+      chips.forEach(chip => {
+        chip.addEventListener('click', () => {
+          chips.forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+          const t = chip.dataset.target;
+          if (t === 'fit') {
+            map.fitBounds(group.getBounds(), { padding: [50, 50], animate: true });
+          } else if (pts[t]) {
+            map.flyTo(pts[t].coords, 13, { duration: .8 });
+          }
+        });
+      });
+    });
+
+    // JSON-LD Schema (Organization, RealEstateAgent, Products)
+    (function(){
+      const org = {
+        "@context":"https://schema.org",
+        "@type":"Organization",
+        "name":"Urban Legend",
+        "url":"https://www.urbanlegend.homes",
+        "logo":"https://www.urbanlegend.homes/logo.png",
+        "contactPoint":[{"@type":"ContactPoint","contactType":"sales","telephone":"+357-9555-9700"}]
+      };
+      const agent = {
+        "@context":"https://schema.org",
+        "@type":"RealEstateAgent",
+        "name":"Urban Legend Homes",
+        "url":"https://www.urbanlegend.homes",
+        "areaServed":"CY",
+        "address":{"@type":"PostalAddress","addressLocality":"Paphos","addressCountry":"CY"}
+      };
+      const products = [
+        {
+          "@context":"https://schema.org",
+          "@type":"Product",
+          "name":"דירת 2 חד׳ — ירוסקיפו",
+          "brand":"Urban Legend",
+          "description":"דירת 2 חדרים חדשה בירוסקיפו, 75 מ״ר, ביקוש שכירויות גבוה.",
+          "offers":{"@type":"Offer","priceCurrency":"EUR","price":"220000","availability":"https://schema.org/InStock"}
+        },
+        {
+          "@context":"https://schema.org",
+          "@type":"Product",
+          "name":"וילה יוקרתית — לימסול",
+          "brand":"Urban Legend",
+          "description":"וילה 4 חדרים עם בריכה בשכונת פרימיום בלימסול.",
+          "offers":{"@type":"Offer","priceCurrency":"EUR","price":"650000","availability":"https://schema.org/PreOrder"}
+        }
+      ];
+      const add = (obj)=>{
+        const s=document.createElement('script'); s.type='application/ld+json'; s.textContent=JSON.stringify(obj); document.head.appendChild(s);
+      };
+      add(org); add(agent); products.forEach(add);
+    })();
+  </script>
+</body>
+</html>
